@@ -55,7 +55,7 @@ apis:
         url: https://www.sageone.com/oauth2/auth/central?filter=apiv3.1
       - type: Token Endpoint
         url: https://oauth.accounting.sage.com/token
-      - type: Changelog
+      - type: ChangeLog
         url: https://developer.sage.com/accounting/reference/changelog/
 
 common:
@@ -69,11 +69,11 @@ common:
     url: https://developer.sage.com/accounting/guides/
   - type: Pricing
     url: https://www.sage.com/en-gb/products/sage-accounting/pricing/
-  - type: Sign Up
+  - type: SignUp
     url: https://developer.sage.com/accounting/guides/getting-started/
   - type: Support
     url: https://www.sage.com/en-gb/support/
-  - type: Status
+  - type: StatusPage
     url: https://status.sage.com
   - type: Community
     url: https://www.sagecity.com
