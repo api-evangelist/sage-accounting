@@ -59,6 +59,10 @@ apis:
         url: https://developer.sage.com/accounting/reference/changelog/
 
 common:
+  - type: GitHubOrganization
+    url: https://github.com/Sage
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/sage-software
   - type: Website
     url: https://www.sage.com/en-gb/products/sage-accounting/
   - type: Developer Portal
