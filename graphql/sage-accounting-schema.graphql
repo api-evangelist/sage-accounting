@@ -1,0 +1,1396 @@
+"""
+Sage Accounting GraphQL Schema
+Conceptual GraphQL schema for the Sage Accounting (formerly Sage Business Cloud Accounting / Sage One) REST API v3.1.
+Source: https://developer.sage.com/accounting/reference/
+GitHub: https://github.com/Sage
+"""
+
+# ---------------------------------------------------------------------------
+# Scalars
+# ---------------------------------------------------------------------------
+
+scalar Date
+scalar DateTime
+scalar Decimal
+
+# ---------------------------------------------------------------------------
+# Enums
+# ---------------------------------------------------------------------------
+
+enum ContactType {
+  CUSTOMER
+  SUPPLIER
+  CUSTOMER_AND_SUPPLIER
+}
+
+enum ContactStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PARTIALLY_PAID
+  PAID
+  VOIDED
+  OVERDUE
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  INVOICED
+}
+
+enum TransactionType {
+  SALES_INVOICE
+  SALES_CREDIT_NOTE
+  PURCHASE_INVOICE
+  PURCHASE_CREDIT_NOTE
+  BANK_PAYMENT
+  BANK_RECEIPT
+  BANK_TRANSFER
+  JOURNAL
+  OPENING_BALANCE
+}
+
+enum AccountType {
+  BANK
+  CREDIT_CARD
+  CASH
+  LOAN
+  OTHER
+}
+
+enum LedgerAccountType {
+  REVENUE
+  EXPENSE
+  ASSET
+  LIABILITY
+  EQUITY
+  OTHER_INCOME
+  COST_OF_SALES
+}
+
+enum PaymentMethodType {
+  BACS
+  CARD
+  CHEQUE
+  CASH
+  DIRECT_DEBIT
+  BANK_TRANSFER
+  OTHER
+}
+
+enum TaxScheme {
+  STANDARD
+  CASH
+  FLAT_RATE
+  NONE
+}
+
+enum StockMovementType {
+  OPENING
+  PURCHASE
+  SALE
+  ADJUSTMENT
+  WRITE_OFF
+}
+
+enum WebhookEventType {
+  CONTACT_CREATED
+  CONTACT_UPDATED
+  CONTACT_DELETED
+  SALES_INVOICE_CREATED
+  SALES_INVOICE_UPDATED
+  SALES_INVOICE_PAID
+  SALES_INVOICE_VOIDED
+  PURCHASE_INVOICE_CREATED
+  PURCHASE_INVOICE_UPDATED
+  BANK_TRANSACTION_CREATED
+  JOURNAL_CREATED
+  PAYMENT_CREATED
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+# ---------------------------------------------------------------------------
+# Supporting value objects
+# ---------------------------------------------------------------------------
+
+"""Monetary amount with an associated currency."""
+type Money {
+  amount: Decimal!
+  currency: Currency!
+}
+
+"""Standard postal address."""
+type Address {
+  addressLine1: String
+  addressLine2: String
+  city: String
+  region: AddressRegion
+  postalCode: String
+  country: Country
+}
+
+"""Relay-style pagination metadata."""
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+  totalCount: Int
+}
+
+# ---------------------------------------------------------------------------
+# Reference / lookup types
+# ---------------------------------------------------------------------------
+
+"""ISO 4217 currency."""
+type Currency {
+  id: ID!
+  isoCode: String!
+  name: String!
+  symbol: String!
+  isBaseCurrency: Boolean!
+}
+
+"""ISO 3166-1 country."""
+type Country {
+  id: ID!
+  isoCode: String!
+  name: String!
+  displayName: String
+}
+
+"""Sub-national region (county, state, province)."""
+type AddressRegion {
+  id: ID!
+  name: String!
+  country: Country!
+}
+
+"""Supported locale / language."""
+type Language {
+  id: ID!
+  locale: String!
+  name: String!
+}
+
+"""Classification of business activity (e.g. retail, professional services)."""
+type BusinessActivity {
+  id: ID!
+  label: String!
+  description: String
+}
+
+"""Legal entity type for a business (e.g. sole trader, limited company)."""
+type BusinessType {
+  id: ID!
+  name: String!
+}
+
+"""Sales channel label applied to invoices and receipts."""
+type SalesChannel {
+  id: ID!
+  name: String!
+}
+
+# ---------------------------------------------------------------------------
+# Contact domain
+# ---------------------------------------------------------------------------
+
+"""Named individual associated with a contact."""
+type ContactPerson {
+  id: ID!
+  name: String!
+  jobTitle: String
+  telephone: String
+  mobile: String
+  email: String
+  isPrimary: Boolean!
+  contact: Contact!
+}
+
+"""Email address record for a contact."""
+type ContactEmail {
+  id: ID!
+  address: String!
+  isPrimary: Boolean!
+  label: String
+}
+
+"""Phone number record for a contact."""
+type ContactPhone {
+  id: ID!
+  number: String!
+  isPrimary: Boolean!
+  label: String
+}
+
+"""Postal address record for a contact."""
+type ContactAddress {
+  id: ID!
+  addressType: String
+  address: Address!
+  isPrimary: Boolean!
+}
+
+"""
+A customer, supplier, or both. Corresponds to the Sage Accounting contacts resource.
+"""
+type Contact {
+  id: ID!
+  name: String!
+  displayName: String
+  reference: String
+  contactType: ContactType!
+  status: ContactStatus!
+  email: String
+  telephone: String
+  mobile: String
+  website: String
+  vatNumber: String
+  registrationNumber: String
+  taxTreatment: String
+  defaultSalesLedgerAccount: Account
+  defaultPurchaseLedgerAccount: Account
+  defaultCurrency: Currency
+  creditLimit: Money
+  paymentTerms: Int
+  balance: Decimal
+  mainAddress: Address
+  deliveryAddress: Address
+  persons: [ContactPerson!]!
+  emails: [ContactEmail!]!
+  phones: [ContactPhone!]!
+  addresses: [ContactAddress!]!
+  salesInvoices: [SalesInvoice!]!
+  purchaseInvoices: [PurchaseInvoice!]!
+  notes: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ContactConnection {
+  pageInfo: PageInfo!
+  edges: [ContactEdge!]!
+}
+
+type ContactEdge {
+  cursor: String!
+  node: Contact!
+}
+
+# ---------------------------------------------------------------------------
+# Banking domain
+# ---------------------------------------------------------------------------
+
+"""A bank institution (sort code, BIC, etc.)."""
+type Bank {
+  id: ID!
+  name: String!
+  shortCode: String
+  country: Country
+}
+
+"""A business bank account linked to a bank."""
+type BankAccount {
+  id: ID!
+  name: String!
+  displayName: String
+  accountType: AccountType!
+  currency: Currency!
+  balance: Decimal
+  sortCode: String
+  accountNumber: String
+  iban: String
+  bic: String
+  bank: Bank
+  isDefault: Boolean!
+  nominalCode: String
+  ledgerAccount: Account
+  transactions: [BankTransaction!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""An individual bank statement line or transaction."""
+type BankTransaction {
+  id: ID!
+  bankAccount: BankAccount!
+  date: Date!
+  reference: String
+  description: String
+  amount: Decimal!
+  isCredit: Boolean!
+  isReconciled: Boolean!
+  transactionType: TransactionType
+  originatingTransaction: String
+  contact: Contact
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A reconciliation session matching bank transactions to Sage transactions."""
+type BankReconciliation {
+  id: ID!
+  bankAccount: BankAccount!
+  statementDate: Date!
+  closingBalance: Decimal!
+  reconciledAt: DateTime
+  isFinished: Boolean!
+  createdAt: DateTime!
+}
+
+"""Exchange rate between the business base currency and another currency."""
+type BusinessExchangeRate {
+  id: ID!
+  currency: Currency!
+  rate: Decimal!
+  inverseRate: Decimal!
+  date: Date!
+  isFixed: Boolean!
+}
+
+# ---------------------------------------------------------------------------
+# Ledger / chart of accounts
+# ---------------------------------------------------------------------------
+
+"""Category grouping for ledger accounts."""
+type Category {
+  id: ID!
+  name: String!
+  displayName: String
+  ledgerAccountType: LedgerAccountType!
+  accounts: [Account!]!
+}
+
+"""
+A ledger account in the chart of accounts.
+Sage calls these 'ledger_accounts'. Each account has a nominal code and a type.
+"""
+type Account {
+  id: ID!
+  displayName: String!
+  nominalCode: String!
+  accountType: LedgerAccountType!
+  category: Category
+  isBankAccount: Boolean!
+  isControlAccount: Boolean!
+  isSystem: Boolean!
+  isVisibleInBankAccounts: Boolean!
+  isVisibleInOtherPayments: Boolean!
+  isVisibleInOtherReceipts: Boolean!
+  isVisibleInExpenses: Boolean!
+  isVisibleInJournals: Boolean!
+  isVisibleInPostedJournals: Boolean!
+  currency: Currency
+  balance: Decimal
+  taxRate: TaxRate
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""Named ledger (e.g. Sales Ledger, Purchase Ledger, Bank Ledger)."""
+type Ledger {
+  id: ID!
+  name: String!
+  description: String
+  accounts: [Account!]!
+}
+
+# ---------------------------------------------------------------------------
+# Tax types
+# ---------------------------------------------------------------------------
+
+"""A tax rate (e.g. Standard Rate 20%, Zero Rated, Exempt)."""
+type TaxRate {
+  id: ID!
+  name: String!
+  displayName: String!
+  percentage: Decimal!
+  isDefault: Boolean!
+  isCombinedRate: Boolean!
+  isVat: Boolean!
+  country: Country
+  subTaxRates: [TaxRate!]!
+}
+
+"""The VAT / tax scheme configuration for the business."""
+type TaxProfile {
+  id: ID!
+  taxScheme: TaxScheme!
+  flatRatePercentage: Decimal
+  vatNumber: String
+  vatRegistrationDate: Date
+  nextReturnStart: Date
+  nextReturnEnd: Date
+}
+
+# ---------------------------------------------------------------------------
+# Products and services
+# ---------------------------------------------------------------------------
+
+"""Group/category for products."""
+type ProductGroup {
+  id: ID!
+  name: String!
+  displayName: String
+  products: [Product!]!
+}
+
+"""Group/category for services."""
+type ServiceGroup {
+  id: ID!
+  name: String!
+  displayName: String
+  services: [Service!]!
+}
+
+"""A physical product in the item catalogue."""
+type Product {
+  id: ID!
+  itemCode: String
+  description: String!
+  salesPrice: Money
+  purchasePrice: Money
+  salesLedgerAccount: Account
+  purchaseLedgerAccount: Account
+  salesTaxRate: TaxRate
+  purchaseTaxRate: TaxRate
+  group: ProductGroup
+  isActive: Boolean!
+  notes: String
+  stockItem: StockItem
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A service item in the item catalogue."""
+type Service {
+  id: ID!
+  itemCode: String
+  description: String!
+  salesPrice: Money
+  purchasePrice: Money
+  salesLedgerAccount: Account
+  purchaseLedgerAccount: Account
+  salesTaxRate: TaxRate
+  purchaseTaxRate: TaxRate
+  group: ServiceGroup
+  isActive: Boolean!
+  notes: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""Inventory stock record associated with a product."""
+type StockItem {
+  id: ID!
+  product: Product!
+  quantityOnHand: Decimal!
+  reorderLevel: Decimal
+  reorderQuantity: Decimal
+  costPrice: Money
+  valuationMethod: String
+  movements: [StockMovement!]!
+  updatedAt: DateTime!
+}
+
+"""A stock in/out movement against a stock item."""
+type StockMovement {
+  id: ID!
+  stockItem: StockItem!
+  movementType: StockMovementType!
+  quantity: Decimal!
+  unitCost: Money
+  date: Date!
+  reference: String
+  notes: String
+  createdAt: DateTime!
+}
+
+# ---------------------------------------------------------------------------
+# Sales transactions
+# ---------------------------------------------------------------------------
+
+"""A line item on a sales invoice."""
+type SalesInvoiceLine {
+  id: ID!
+  description: String!
+  quantity: Decimal!
+  unitPrice: Money!
+  netAmount: Money!
+  taxRate: TaxRate
+  taxAmount: Money!
+  totalAmount: Money!
+  discountPercentage: Decimal
+  discountAmount: Money
+  ledgerAccount: Account
+  product: Product
+  service: Service
+  isService: Boolean!
+  analysisTypeCategories: [String!]!
+}
+
+"""A sales invoice raised against a contact."""
+type SalesInvoice {
+  id: ID!
+  invoiceNumber: String
+  reference: String
+  contact: Contact!
+  date: Date!
+  dueDate: Date
+  status: InvoiceStatus!
+  currency: Currency!
+  exchangeRate: Decimal
+  lines: [SalesInvoiceLine!]!
+  subtotal: Money!
+  totalTaxAmount: Money!
+  totalAmount: Money!
+  outstandingAmount: Money!
+  paidAmount: Money!
+  shipping: Money
+  discountAmount: Money
+  notes: String
+  termsAndConditions: String
+  shippingAddress: Address
+  payments: [Payment!]!
+  attachments: [Attachment!]!
+  salesChannel: SalesChannel
+  poReference: String
+  creditNotes: [CreditNote!]!
+  isCIS: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A sales credit note issued to a customer."""
+type CreditNote {
+  id: ID!
+  creditNoteNumber: String
+  reference: String
+  contact: Contact!
+  date: Date!
+  status: InvoiceStatus!
+  currency: Currency!
+  exchangeRate: Decimal
+  lines: [SalesInvoiceLine!]!
+  totalAmount: Money!
+  appliedAmount: Money!
+  remainingAmount: Money!
+  allocations: [Payment!]!
+  originalInvoice: SalesInvoice
+  notes: String
+  attachments: [Attachment!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A sales quote or proposal sent to a prospect or customer."""
+type Quote {
+  id: ID!
+  quoteNumber: String
+  reference: String
+  contact: Contact!
+  date: Date!
+  expiryDate: Date
+  status: QuoteStatus!
+  currency: Currency!
+  exchangeRate: Decimal
+  lines: [SalesInvoiceLine!]!
+  totalAmount: Money!
+  notes: String
+  termsAndConditions: String
+  attachments: [Attachment!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A sales estimate (used in US/international markets)."""
+type Estimate {
+  id: ID!
+  estimateNumber: String
+  reference: String
+  contact: Contact!
+  date: Date!
+  expiryDate: Date
+  status: QuoteStatus!
+  currency: Currency!
+  lines: [SalesInvoiceLine!]!
+  totalAmount: Money!
+  notes: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A receipt for a direct cash sale (no invoice raised)."""
+type SalesReceipt {
+  id: ID!
+  reference: String
+  contact: Contact
+  date: Date!
+  currency: Currency!
+  exchangeRate: Decimal
+  bankAccount: BankAccount!
+  lines: [SalesInvoiceLine!]!
+  totalAmount: Money!
+  paymentMethod: PaymentMethod
+  notes: String
+  attachments: [Attachment!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A refund issued against a credit note or overpayment."""
+type Refund {
+  id: ID!
+  contact: Contact!
+  bankAccount: BankAccount!
+  date: Date!
+  amount: Money!
+  reference: String
+  paymentMethod: PaymentMethod
+  creditNote: CreditNote
+  notes: String
+  attachments: [Attachment!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ---------------------------------------------------------------------------
+# Purchase transactions
+# ---------------------------------------------------------------------------
+
+"""A line item on a purchase invoice."""
+type PurchaseLine {
+  id: ID!
+  description: String!
+  quantity: Decimal!
+  unitPrice: Money!
+  netAmount: Money!
+  taxRate: TaxRate
+  taxAmount: Money!
+  totalAmount: Money!
+  ledgerAccount: Account
+  product: Product
+  service: Service
+  isService: Boolean!
+  isCIS: Boolean!
+}
+
+"""A supplier invoice received from a contact."""
+type PurchaseInvoice {
+  id: ID!
+  vendorReference: String
+  reference: String
+  contact: Contact!
+  date: Date!
+  dueDate: Date
+  status: InvoiceStatus!
+  currency: Currency!
+  exchangeRate: Decimal
+  lines: [PurchaseLine!]!
+  subtotal: Money!
+  totalTaxAmount: Money!
+  totalAmount: Money!
+  outstandingAmount: Money!
+  paidAmount: Money!
+  notes: String
+  payments: [Payment!]!
+  attachments: [Attachment!]!
+  isCIS: Boolean!
+  cisAppliedAmount: Money
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A purchase credit note received from a supplier."""
+type PurchaseCreditNote {
+  id: ID!
+  vendorReference: String
+  reference: String
+  contact: Contact!
+  date: Date!
+  status: InvoiceStatus!
+  currency: Currency!
+  exchangeRate: Decimal
+  lines: [PurchaseLine!]!
+  totalAmount: Money!
+  appliedAmount: Money!
+  remainingAmount: Money!
+  originalInvoice: PurchaseInvoice
+  notes: String
+  attachments: [Attachment!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ---------------------------------------------------------------------------
+# Payments
+# ---------------------------------------------------------------------------
+
+"""A configured payment method (BACS, card, cheque, etc.)."""
+type PaymentMethod {
+  id: ID!
+  name: String!
+  paymentMethodType: PaymentMethodType!
+  bankAccount: BankAccount
+  isDefault: Boolean!
+  isActive: Boolean!
+}
+
+"""An allocation of a payment against an invoice or credit note."""
+type Payment {
+  id: ID!
+  date: Date!
+  amount: Money!
+  reference: String
+  paymentMethod: PaymentMethod
+  bankAccount: BankAccount
+  contact: Contact
+  salesInvoice: SalesInvoice
+  purchaseInvoice: PurchaseInvoice
+  creditNote: CreditNote
+  notes: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A payment out recorded directly against a bank account."""
+type BankPayment {
+  id: ID!
+  bankAccount: BankAccount!
+  contact: Contact
+  date: Date!
+  reference: String
+  amount: Money!
+  paymentMethod: PaymentMethod
+  lines: [PurchaseLine!]!
+  notes: String
+  attachments: [Attachment!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A receipt in recorded directly against a bank account."""
+type BankReceipt {
+  id: ID!
+  bankAccount: BankAccount!
+  contact: Contact
+  date: Date!
+  reference: String
+  amount: Money!
+  paymentMethod: PaymentMethod
+  lines: [SalesInvoiceLine!]!
+  notes: String
+  attachments: [Attachment!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A transfer of funds between two bank accounts."""
+type BankTransfer {
+  id: ID!
+  fromBankAccount: BankAccount!
+  toBankAccount: BankAccount!
+  date: Date!
+  reference: String
+  amount: Money!
+  description: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ---------------------------------------------------------------------------
+# Journals
+# ---------------------------------------------------------------------------
+
+"""A line within a journal entry (debit or credit)."""
+type JournalLine {
+  id: ID!
+  ledgerAccount: Account!
+  description: String
+  debit: Money
+  credit: Money
+  taxRate: TaxRate
+  contact: Contact
+  department: String
+  costCenter: String
+}
+
+"""A manual journal entry posted to the general ledger."""
+type JournalEntry {
+  id: ID!
+  date: Date!
+  reference: String
+  description: String
+  lines: [JournalLine!]!
+  isPosted: Boolean!
+  currency: Currency!
+  exchangeRate: Decimal
+  totalDebit: Money!
+  totalCredit: Money!
+  attachments: [Attachment!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ---------------------------------------------------------------------------
+# Business configuration
+# ---------------------------------------------------------------------------
+
+"""The business financial year configuration."""
+type FinancialYear {
+  id: ID!
+  startDate: Date!
+  endDate: Date!
+  isCurrent: Boolean!
+  isLocked: Boolean!
+}
+
+"""Opening balances for accounts at the start of a financial year."""
+type OpeningBalance {
+  id: ID!
+  ledgerAccount: Account!
+  date: Date!
+  debit: Money
+  credit: Money
+  description: String
+}
+
+"""Global settings for the Sage Accounting business."""
+type BusinessSettings {
+  id: ID!
+  companyName: String!
+  legalName: String
+  registrationNumber: String
+  vatNumber: String
+  taxProfile: TaxProfile
+  baseCurrency: Currency!
+  country: Country!
+  language: Language!
+  businessType: BusinessType
+  businessActivity: BusinessActivity
+  financialYearStartDay: Int!
+  financialYearStartMonth: Int!
+  address: Address
+  telephone: String
+  email: String
+  website: String
+  logoUrl: String
+  invoiceTitle: String
+  creditNoteTitle: String
+  quoteTitle: String
+  currentFinancialYear: FinancialYear
+}
+
+# ---------------------------------------------------------------------------
+# Users and platform
+# ---------------------------------------------------------------------------
+
+"""A user with access to the Sage Accounting business."""
+type User {
+  id: ID!
+  email: String!
+  firstName: String
+  lastName: String
+  fullName: String
+  role: String!
+  isOwner: Boolean!
+  isActive: Boolean!
+  lastLoginAt: DateTime
+  createdAt: DateTime!
+}
+
+"""An OAuth API application / credential registered with Sage."""
+type APIKey {
+  id: ID!
+  name: String!
+  clientId: String!
+  scopes: [String!]!
+  isActive: Boolean!
+  createdAt: DateTime!
+}
+
+"""A webhook subscription for Sage Accounting events."""
+type Webhook {
+  id: ID!
+  url: String!
+  events: [WebhookEventType!]!
+  signingSecret: String
+  isActive: Boolean!
+  lastDeliveredAt: DateTime
+  failureCount: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""A file attachment on a transaction or contact."""
+type Attachment {
+  id: ID!
+  fileName: String!
+  fileSize: Int
+  mimeType: String
+  url: String!
+  description: String
+  createdAt: DateTime!
+}
+
+# ---------------------------------------------------------------------------
+# Root query type
+# ---------------------------------------------------------------------------
+
+type Query {
+  # Contacts
+  contacts(
+    first: Int
+    after: String
+    last: Int
+    before: String
+    contactType: ContactType
+    status: ContactStatus
+    search: String
+    sortBy: String
+    sortOrder: SortOrder
+  ): ContactConnection!
+  contact(id: ID!): Contact
+
+  # Banking
+  bankAccounts: [BankAccount!]!
+  bankAccount(id: ID!): BankAccount
+  bankTransactions(bankAccountId: ID!, first: Int, after: String): [BankTransaction!]!
+  bankTransaction(id: ID!): BankTransaction
+  bankReconciliations(bankAccountId: ID!): [BankReconciliation!]!
+  bankTransfers(first: Int, after: String): [BankTransfer!]!
+
+  # Exchange rates
+  businessExchangeRates(date: Date): [BusinessExchangeRate!]!
+
+  # Sales
+  salesInvoices(
+    first: Int
+    after: String
+    status: InvoiceStatus
+    contactId: ID
+    fromDate: Date
+    toDate: Date
+    search: String
+  ): [SalesInvoice!]!
+  salesInvoice(id: ID!): SalesInvoice
+  creditNotes(first: Int, after: String, contactId: ID): [CreditNote!]!
+  creditNote(id: ID!): CreditNote
+  quotes(first: Int, after: String, status: QuoteStatus, contactId: ID): [Quote!]!
+  quote(id: ID!): Quote
+  estimates(first: Int, after: String): [Estimate!]!
+  salesReceipts(first: Int, after: String): [SalesReceipt!]!
+  refunds(first: Int, after: String): [Refund!]!
+
+  # Purchases
+  purchaseInvoices(
+    first: Int
+    after: String
+    status: InvoiceStatus
+    contactId: ID
+    fromDate: Date
+    toDate: Date
+  ): [PurchaseInvoice!]!
+  purchaseInvoice(id: ID!): PurchaseInvoice
+  purchaseCreditNotes(first: Int, after: String): [PurchaseCreditNote!]!
+  bankPayments(first: Int, after: String): [BankPayment!]!
+  bankReceipts(first: Int, after: String): [BankReceipt!]!
+
+  # Payments
+  payments(first: Int, after: String, contactId: ID): [Payment!]!
+  paymentMethods: [PaymentMethod!]!
+
+  # Ledger / Journals
+  accounts(accountType: LedgerAccountType): [Account!]!
+  account(id: ID!): Account
+  categories: [Category!]!
+  journalEntries(first: Int, after: String, fromDate: Date, toDate: Date): [JournalEntry!]!
+  journalEntry(id: ID!): JournalEntry
+  ledgers: [Ledger!]!
+  openingBalances: [OpeningBalance!]!
+
+  # Tax
+  taxRates: [TaxRate!]!
+  taxRate(id: ID!): TaxRate
+  taxProfile: TaxProfile
+
+  # Products and Services
+  products(first: Int, after: String, search: String): [Product!]!
+  product(id: ID!): Product
+  productGroups: [ProductGroup!]!
+  services(first: Int, after: String, search: String): [Service!]!
+  service(id: ID!): Service
+  serviceGroups: [ServiceGroup!]!
+  stockItems: [StockItem!]!
+  stockItem(id: ID!): StockItem
+  stockMovements(stockItemId: ID!): [StockMovement!]!
+
+  # Business config
+  businessSettings: BusinessSettings!
+  financialYears: [FinancialYear!]!
+  currencies: [Currency!]!
+  countries: [Country!]!
+  languages: [Language!]!
+  addressRegions(countryId: ID!): [AddressRegion!]!
+  businessActivities: [BusinessActivity!]!
+  businessTypes: [BusinessType!]!
+  salesChannels: [SalesChannel!]!
+  businessExchangeRate(currencyId: ID!): BusinessExchangeRate
+
+  # Users and platform
+  users: [User!]!
+  user(id: ID!): User
+  webhooks: [Webhook!]!
+  webhook(id: ID!): Webhook
+  apiKeys: [APIKey!]!
+}
+
+# ---------------------------------------------------------------------------
+# Root mutation type
+# ---------------------------------------------------------------------------
+
+type Mutation {
+  # Contacts
+  createContact(input: CreateContactInput!): Contact!
+  updateContact(id: ID!, input: UpdateContactInput!): Contact!
+  deleteContact(id: ID!): Boolean!
+
+  # Bank accounts
+  createBankAccount(input: CreateBankAccountInput!): BankAccount!
+  updateBankAccount(id: ID!, input: UpdateBankAccountInput!): BankAccount!
+
+  # Sales invoices
+  createSalesInvoice(input: CreateSalesInvoiceInput!): SalesInvoice!
+  updateSalesInvoice(id: ID!, input: UpdateSalesInvoiceInput!): SalesInvoice!
+  voidSalesInvoice(id: ID!): SalesInvoice!
+  sendSalesInvoice(id: ID!, email: String): Boolean!
+
+  # Credit notes
+  createCreditNote(input: CreateCreditNoteInput!): CreditNote!
+
+  # Quotes
+  createQuote(input: CreateQuoteInput!): Quote!
+  updateQuote(id: ID!, input: UpdateQuoteInput!): Quote!
+  convertQuoteToInvoice(id: ID!): SalesInvoice!
+
+  # Purchase invoices
+  createPurchaseInvoice(input: CreatePurchaseInvoiceInput!): PurchaseInvoice!
+  updatePurchaseInvoice(id: ID!, input: UpdatePurchaseInvoiceInput!): PurchaseInvoice!
+  voidPurchaseInvoice(id: ID!): PurchaseInvoice!
+
+  # Payments
+  createPayment(input: CreatePaymentInput!): Payment!
+  deletePayment(id: ID!): Boolean!
+
+  # Bank transactions
+  createBankPayment(input: CreateBankPaymentInput!): BankPayment!
+  createBankReceipt(input: CreateBankReceiptInput!): BankReceipt!
+  createBankTransfer(input: CreateBankTransferInput!): BankTransfer!
+
+  # Journals
+  createJournalEntry(input: CreateJournalEntryInput!): JournalEntry!
+
+  # Products / services
+  createProduct(input: CreateProductInput!): Product!
+  updateProduct(id: ID!, input: UpdateProductInput!): Product!
+  createService(input: CreateServiceInput!): Service!
+  updateService(id: ID!, input: UpdateServiceInput!): Service!
+
+  # Webhooks
+  createWebhook(input: CreateWebhookInput!): Webhook!
+  updateWebhook(id: ID!, input: UpdateWebhookInput!): Webhook!
+  deleteWebhook(id: ID!): Boolean!
+}
+
+# ---------------------------------------------------------------------------
+# Input types (representative selection)
+# ---------------------------------------------------------------------------
+
+input CreateContactInput {
+  name: String!
+  contactType: ContactType!
+  email: String
+  telephone: String
+  mobile: String
+  website: String
+  vatNumber: String
+  registrationNumber: String
+  taxTreatment: String
+  defaultCurrencyId: ID
+  creditLimit: Decimal
+  paymentTerms: Int
+  mainAddress: AddressInput
+  notes: String
+}
+
+input UpdateContactInput {
+  name: String
+  email: String
+  telephone: String
+  mobile: String
+  website: String
+  vatNumber: String
+  taxTreatment: String
+  creditLimit: Decimal
+  paymentTerms: Int
+  mainAddress: AddressInput
+  notes: String
+  status: ContactStatus
+}
+
+input AddressInput {
+  addressLine1: String
+  addressLine2: String
+  city: String
+  regionId: ID
+  postalCode: String
+  countryId: ID
+}
+
+input CreateBankAccountInput {
+  name: String!
+  accountType: AccountType!
+  currencyId: ID!
+  bankId: ID
+  sortCode: String
+  accountNumber: String
+  iban: String
+  bic: String
+  nominalCode: String
+}
+
+input UpdateBankAccountInput {
+  name: String
+  sortCode: String
+  accountNumber: String
+  iban: String
+  bic: String
+}
+
+input SalesInvoiceLineInput {
+  description: String!
+  quantity: Decimal!
+  unitPrice: Decimal!
+  ledgerAccountId: ID
+  productId: ID
+  serviceId: ID
+  taxRateId: ID
+  discountPercentage: Decimal
+}
+
+input CreateSalesInvoiceInput {
+  contactId: ID!
+  date: Date!
+  dueDate: Date
+  reference: String
+  currencyId: ID
+  exchangeRate: Decimal
+  lines: [SalesInvoiceLineInput!]!
+  notes: String
+  termsAndConditions: String
+  salesChannelId: ID
+  poReference: String
+}
+
+input UpdateSalesInvoiceInput {
+  date: Date
+  dueDate: Date
+  reference: String
+  lines: [SalesInvoiceLineInput!]
+  notes: String
+  termsAndConditions: String
+}
+
+input CreateCreditNoteInput {
+  contactId: ID!
+  date: Date!
+  reference: String
+  currencyId: ID
+  lines: [SalesInvoiceLineInput!]!
+  originalInvoiceId: ID
+  notes: String
+}
+
+input CreateQuoteInput {
+  contactId: ID!
+  date: Date!
+  expiryDate: Date
+  reference: String
+  currencyId: ID
+  lines: [SalesInvoiceLineInput!]!
+  notes: String
+  termsAndConditions: String
+}
+
+input UpdateQuoteInput {
+  date: Date
+  expiryDate: Date
+  reference: String
+  lines: [SalesInvoiceLineInput!]
+  notes: String
+}
+
+input PurchaseLineInput {
+  description: String!
+  quantity: Decimal!
+  unitPrice: Decimal!
+  ledgerAccountId: ID
+  productId: ID
+  serviceId: ID
+  taxRateId: ID
+}
+
+input CreatePurchaseInvoiceInput {
+  contactId: ID!
+  date: Date!
+  dueDate: Date
+  vendorReference: String
+  reference: String
+  currencyId: ID
+  exchangeRate: Decimal
+  lines: [PurchaseLineInput!]!
+  notes: String
+}
+
+input UpdatePurchaseInvoiceInput {
+  date: Date
+  dueDate: Date
+  vendorReference: String
+  lines: [PurchaseLineInput!]
+  notes: String
+}
+
+input CreatePaymentInput {
+  date: Date!
+  amount: Decimal!
+  currencyId: ID
+  contactId: ID
+  bankAccountId: ID
+  paymentMethodId: ID
+  salesInvoiceId: ID
+  purchaseInvoiceId: ID
+  creditNoteId: ID
+  reference: String
+}
+
+input CreateBankPaymentInput {
+  bankAccountId: ID!
+  contactId: ID
+  date: Date!
+  reference: String
+  amount: Decimal!
+  paymentMethodId: ID
+  lines: [PurchaseLineInput!]!
+  notes: String
+}
+
+input CreateBankReceiptInput {
+  bankAccountId: ID!
+  contactId: ID
+  date: Date!
+  reference: String
+  amount: Decimal!
+  paymentMethodId: ID
+  lines: [SalesInvoiceLineInput!]!
+  notes: String
+}
+
+input CreateBankTransferInput {
+  fromBankAccountId: ID!
+  toBankAccountId: ID!
+  date: Date!
+  amount: Decimal!
+  reference: String
+  description: String
+}
+
+input JournalLineInput {
+  ledgerAccountId: ID!
+  description: String
+  debit: Decimal
+  credit: Decimal
+  taxRateId: ID
+  contactId: ID
+}
+
+input CreateJournalEntryInput {
+  date: Date!
+  reference: String
+  description: String
+  currencyId: ID
+  exchangeRate: Decimal
+  lines: [JournalLineInput!]!
+}
+
+input CreateProductInput {
+  itemCode: String
+  description: String!
+  salesPrice: Decimal
+  purchasePrice: Decimal
+  currencyId: ID
+  salesLedgerAccountId: ID
+  purchaseLedgerAccountId: ID
+  salesTaxRateId: ID
+  purchaseTaxRateId: ID
+  productGroupId: ID
+  notes: String
+}
+
+input UpdateProductInput {
+  itemCode: String
+  description: String
+  salesPrice: Decimal
+  purchasePrice: Decimal
+  salesLedgerAccountId: ID
+  purchaseLedgerAccountId: ID
+  salesTaxRateId: ID
+  purchaseTaxRateId: ID
+  notes: String
+}
+
+input CreateServiceInput {
+  itemCode: String
+  description: String!
+  salesPrice: Decimal
+  purchasePrice: Decimal
+  currencyId: ID
+  salesLedgerAccountId: ID
+  purchaseLedgerAccountId: ID
+  salesTaxRateId: ID
+  purchaseTaxRateId: ID
+  serviceGroupId: ID
+  notes: String
+}
+
+input UpdateServiceInput {
+  itemCode: String
+  description: String
+  salesPrice: Decimal
+  salesLedgerAccountId: ID
+  salesTaxRateId: ID
+  notes: String
+}
+
+input CreateWebhookInput {
+  url: String!
+  events: [WebhookEventType!]!
+}
+
+input UpdateWebhookInput {
+  url: String
+  events: [WebhookEventType!]
+  isActive: Boolean
+}

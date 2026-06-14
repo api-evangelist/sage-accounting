@@ -1,149 +1,133 @@
 aid: sage-accounting
 name: Sage Accounting
-description: >-
-  Sage Accounting (formerly Sage Business Cloud Accounting and Sage One) is
-  Sage's cloud-based accounting software for UK and international small and
-  medium businesses, covering invoicing, expenses, banking, VAT, payroll
-  integration, and financial reporting. Its REST API at
-  https://api.accounting.sage.com/v3.1 provides programmatic access to
-  contacts, sales and purchase invoices, ledger accounts, journals, tax
-  rates, bank accounts, and attachments. Authentication uses OAuth 2.0
-  with the authorization endpoint at https://www.sageone.com/oauth2/auth/central
-  and the token endpoint at https://oauth.accounting.sage.com/token; access
-  tokens expire after five minutes and refresh tokens after 31 days, and
-  the X-Business header selects the target business.
+description: Sage Accounting (formerly Sage Business Cloud Accounting and Sage One)
+  is Sage's cloud-based accounting software for UK and international small and medium
+  businesses, covering invoicing, expenses, banking, VAT, payroll integration, and
+  financial reporting. Its REST API at https://api.accounting.sage.com/v3.1 provides
+  programmatic access to contacts, sales and purchase invoices, ledger accounts, journals,
+  tax rates, bank accounts, and attachments. Authentication uses OAuth 2.0 with the
+  authorization endpoint at https://www.sageone.com/oauth2/auth/central and the token
+  endpoint at https://oauth.accounting.sage.com/token; access tokens expire after
+  five minutes and refresh tokens after 31 days, and the X-Business header selects
+  the target business.
 type: Index
 image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
 tags:
-  - Accounting
-  - Bookkeeping
-  - Invoicing
-  - Small Business
-  - VAT
-  - Sage
-  - UK
-  - OAuth 2.0
-url: >-
-  https://raw.githubusercontent.com/api-evangelist/sage-accounting/refs/heads/main/apis.yml
+- Accounting
+- Bookkeeping
+- Invoicing
+- Small Business
+- VAT
+- Sage
+- UK
+- OAuth 2.0
+url: https://raw.githubusercontent.com/api-evangelist/sage-accounting/refs/heads/main/apis.yml
 created: '2026-05-11'
 modified: '2026-05-11'
 specificationVersion: '0.19'
 apis:
-  - aid: sage-accounting:accounting-api
-    name: Sage Accounting v3.1 REST API
-    description: >-
-      REST API for Sage Business Cloud Accounting providing access to
-      contacts, sales invoices, sales credit notes, purchase invoices,
-      purchase credit notes, ledger accounts, journals, products, services,
-      tax rates, bank accounts, bank transactions, and attachments.
-      Multi-business apps target a business via the X-Business header.
-    humanURL: https://developer.sage.com/accounting/reference/
-    baseURL: https://api.accounting.sage.com/v3.1
-    tags:
-      - Accounting
-      - REST API
-      - OAuth 2.0
-      - Small Business
-    properties:
-      - type: Documentation
-        url: https://developer.sage.com/accounting/reference/
-      - type: Authentication
-        url: https://developer.sage.com/accounting/guides/authenticating/authentication
-      - type: Guides
-        url: https://developer.sage.com/accounting/guides/
-      - type: Authorization Endpoint
-        url: https://www.sageone.com/oauth2/auth/central?filter=apiv3.1
-      - type: Token Endpoint
-        url: https://oauth.accounting.sage.com/token
-      - type: ChangeLog
-        url: https://developer.sage.com/accounting/reference/changelog/
-
-common:
-  - type: GitHubOrganization
-    url: https://github.com/Sage
-  - type: LinkedIn
-    url: https://www.linkedin.com/company/sage-software
-  - type: Website
-    url: https://www.sage.com/en-gb/products/sage-accounting/
-  - type: Developer Portal
-    url: https://developer.sage.com/accounting/
+- aid: sage-accounting:accounting-api
+  name: Sage Accounting v3.1 REST API
+  description: REST API for Sage Business Cloud Accounting providing access to contacts,
+    sales invoices, sales credit notes, purchase invoices, purchase credit notes,
+    ledger accounts, journals, products, services, tax rates, bank accounts, bank
+    transactions, and attachments. Multi-business apps target a business via the X-Business
+    header.
+  humanURL: https://developer.sage.com/accounting/reference/
+  baseURL: https://api.accounting.sage.com/v3.1
+  tags:
+  - Accounting
+  - REST API
+  - OAuth 2.0
+  - Small Business
+  properties:
   - type: Documentation
     url: https://developer.sage.com/accounting/reference/
+  - type: Authentication
+    url: https://developer.sage.com/accounting/guides/authenticating/authentication
   - type: Guides
     url: https://developer.sage.com/accounting/guides/
-  - type: Pricing
-    url: https://www.sage.com/en-gb/products/sage-accounting/pricing/
-  - type: SignUp
-    url: https://developer.sage.com/accounting/guides/getting-started/
-  - type: Support
-    url: https://www.sage.com/en-gb/support/
-  - type: StatusPage
-    url: https://status.sage.com
-  - type: Community
-    url: https://www.sagecity.com
+  - type: Authorization Endpoint
+    url: https://www.sageone.com/oauth2/auth/central?filter=apiv3.1
+  - type: Token Endpoint
+    url: https://oauth.accounting.sage.com/token
+  - type: ChangeLog
+    url: https://developer.sage.com/accounting/reference/changelog/
+  - url: graphql/sage-accounting-graphql.md
+    type: GraphQL
+common:
+- type: GitHubOrganization
+  url: https://github.com/Sage
+- type: LinkedIn
+  url: https://www.linkedin.com/company/sage-software
+- type: Website
+  url: https://www.sage.com/en-gb/products/sage-accounting/
+- type: Developer Portal
+  url: https://developer.sage.com/accounting/
+- type: Documentation
+  url: https://developer.sage.com/accounting/reference/
+- type: Guides
+  url: https://developer.sage.com/accounting/guides/
+- type: Pricing
+  url: https://www.sage.com/en-gb/products/sage-accounting/pricing/
+- type: SignUp
+  url: https://developer.sage.com/accounting/guides/getting-started/
+- type: Support
+  url: https://www.sage.com/en-gb/support/
+- type: StatusPage
+  url: https://status.sage.com
+- type: Community
+  url: https://www.sagecity.com
 features:
-  - name: Sales and Purchase Invoicing
-    description: >-
-      Create and manage sales invoices, sales credit notes, quotes,
-      estimates, purchase invoices, and purchase credit notes with line
-      items, VAT rates, and attachments.
-  - name: Contacts
-    description: >-
-      Manage customer and supplier records with addresses, default tax
-      treatment, payment terms, and credit limits.
-  - name: Ledger and Journals
-    description: >-
-      Read the chart of ledger accounts and post journal entries directly
-      for bookkeeping automation and GL integration.
-  - name: Banking
-    description: >-
-      Bank accounts, bank transactions, transfers, and reconciliation flows
-      with attachment support.
-  - name: VAT and Tax
-    description: >-
-      Tax rates, VAT schemes (Standard, Cash, Flat Rate), and HMRC Making
-      Tax Digital (MTD) VAT submission support.
-  - name: Attachments
-    description: >-
-      Upload and attach files (receipts, invoices) to transactions and
-      contacts via the Attachments API.
+- name: Sales and Purchase Invoicing
+  description: Create and manage sales invoices, sales credit notes, quotes, estimates,
+    purchase invoices, and purchase credit notes with line items, VAT rates, and attachments.
+- name: Contacts
+  description: Manage customer and supplier records with addresses, default tax treatment,
+    payment terms, and credit limits.
+- name: Ledger and Journals
+  description: Read the chart of ledger accounts and post journal entries directly
+    for bookkeeping automation and GL integration.
+- name: Banking
+  description: Bank accounts, bank transactions, transfers, and reconciliation flows
+    with attachment support.
+- name: VAT and Tax
+  description: Tax rates, VAT schemes (Standard, Cash, Flat Rate), and HMRC Making
+    Tax Digital (MTD) VAT submission support.
+- name: Attachments
+  description: Upload and attach files (receipts, invoices) to transactions and contacts
+    via the Attachments API.
 solutions:
-  - name: SMB Accounting Integration
-    description: >-
-      Sync invoices, contacts, and payments between Sage Accounting and
-      CRM, e-commerce, or billing platforms used by UK small businesses.
-  - name: Practice and Bookkeeper Tools
-    description: >-
-      Power tools used by accountants and bookkeepers to manage many client
-      Sage Accounting businesses from one interface.
-  - name: Making Tax Digital
-    description: >-
-      Submit VAT returns to HMRC directly from integrated apps using the
-      MTD-compliant Sage Accounting API.
+- name: SMB Accounting Integration
+  description: Sync invoices, contacts, and payments between Sage Accounting and CRM,
+    e-commerce, or billing platforms used by UK small businesses.
+- name: Practice and Bookkeeper Tools
+  description: Power tools used by accountants and bookkeepers to manage many client
+    Sage Accounting businesses from one interface.
+- name: Making Tax Digital
+  description: Submit VAT returns to HMRC directly from integrated apps using the
+    MTD-compliant Sage Accounting API.
 useCases:
-  - name: E-commerce Order Sync
-    description: >-
-      Push Shopify, WooCommerce, or Amazon orders into Sage Accounting as
-      sales invoices with VAT, customers, and bank receipts.
-  - name: Expense Management
-    description: >-
-      Create purchase invoices and attach receipts from expense tools like
-      Dext or AutoEntry for AP automation.
-  - name: Multi-Business Reporting
-    description: >-
-      Aggregate financial data across many Sage Accounting businesses for
-      group-level reporting and dashboards.
+- name: E-commerce Order Sync
+  description: Push Shopify, WooCommerce, or Amazon orders into Sage Accounting as
+    sales invoices with VAT, customers, and bank receipts.
+- name: Expense Management
+  description: Create purchase invoices and attach receipts from expense tools like
+    Dext or AutoEntry for AP automation.
+- name: Multi-Business Reporting
+  description: Aggregate financial data across many Sage Accounting businesses for
+    group-level reporting and dashboards.
 integrations:
-  - name: Stripe
-    description: Reconcile Stripe payouts and charges against Sage Accounting invoices
-  - name: GoCardless
-    description: Direct Debit collection with reconciliation back to Sage
-  - name: Shopify
-    description: Push Shopify orders into Sage Accounting as sales invoices
-  - name: Dext
-    description: Receipt and invoice capture pushed into Sage Accounting
-  - name: HMRC MTD
-    description: Submit Making Tax Digital VAT returns directly to HMRC
+- name: Stripe
+  description: Reconcile Stripe payouts and charges against Sage Accounting invoices
+- name: GoCardless
+  description: Direct Debit collection with reconciliation back to Sage
+- name: Shopify
+  description: Push Shopify orders into Sage Accounting as sales invoices
+- name: Dext
+  description: Receipt and invoice capture pushed into Sage Accounting
+- name: HMRC MTD
+  description: Submit Making Tax Digital VAT returns directly to HMRC
 maintainers:
-  - FN: Kin Lane
-    email: kin@apievangelist.com
+- FN: Kin Lane
+  email: kin@apievangelist.com
