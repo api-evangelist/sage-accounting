@@ -11,7 +11,7 @@ description: Sage Accounting (formerly Sage Business Cloud Accounting and Sage O
   five minutes and refresh tokens after 31 days, and the X-Business header selects
   the target business.
 type: Index
-image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 tags:
 - Accounting
 - Bookkeeping
