@@ -62,7 +62,7 @@ common:
   url: https://www.linkedin.com/company/sage-software
 - type: Website
   url: https://www.sage.com/en-gb/products/sage-accounting/
-- type: Developer Portal
+- type: DeveloperPortal
   url: https://developer.sage.com/accounting/
 - type: Documentation
   url: https://developer.sage.com/accounting/reference/
@@ -70,7 +70,7 @@ common:
   url: https://developer.sage.com/accounting/guides/
 - type: Pricing
   url: https://www.sage.com/en-gb/products/sage-accounting/pricing/
-- type: SignUp
+- type: Signup
   url: https://developer.sage.com/accounting/guides/getting-started/
 - type: Support
   url: https://www.sage.com/en-gb/support/
