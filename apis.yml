@@ -56,6 +56,12 @@ apis:
   - url: graphql/sage-accounting-graphql.md
     type: GraphQL
 common:
+- type: VulnerabilityDisclosure
+  url: security/sage-accounting-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/sage-accounting-domain-security.yml
+- url: https://www.sage.com/en-gb/blog/feed/
+  type: Blog
 - type: GitHubOrganization
   url: https://github.com/Sage
 - type: LinkedIn
