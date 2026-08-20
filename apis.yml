@@ -31,6 +31,15 @@ tags:
 - VAT
 - Sage
 - UK
+- Authentication
+tags_raw:
+- Accounting
+- Bookkeeping
+- Invoicing
+- Small Business
+- VAT
+- Sage
+- UK
 - OAuth 2.0
 url: https://raw.githubusercontent.com/api-evangelist/sage-accounting/refs/heads/main/apis.yml
 created: '2026-05-11'
@@ -47,6 +56,11 @@ apis:
   humanURL: https://developer.sage.com/accounting/reference/
   baseURL: https://api.accounting.sage.com/v3.1
   tags:
+  - Accounting
+  - REST API
+  - Authentication
+  - Small Business
+  tags_raw:
   - Accounting
   - REST API
   - OAuth 2.0
