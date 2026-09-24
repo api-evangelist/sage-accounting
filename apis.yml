@@ -89,8 +89,6 @@ apis:
     url: https://oauth.accounting.sage.com/token
   - type: ChangeLog
     url: https://developer.sage.com/accounting/reference/changelog/
-  - url: graphql/sage-accounting-graphql.md
-    type: GraphQL
 common:
 - type: VulnerabilityDisclosure
   url: security/sage-accounting-vulnerability-disclosure.yml
